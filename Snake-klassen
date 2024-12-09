@@ -1,0 +1,59 @@
+import java.util.LinkedList;
+
+public class Snake {
+    private LinkedList<int[]> segments; // Slangens segmenter
+    private int[] direction = {1, 0}; // Bevægelsesretning
+    private int cols, rows; // Spillets gridstørrelse
+
+    public Snake(int startX, int startY, int cols, int rows) {
+        this.segments = new LinkedList<>();
+        this.segments.add(new int[]{startX, startY});
+        this.cols = cols;
+        this.rows = rows;
+    }
+
+    public void move(boolean grow) {
+        int[] head = segments.getFirst();
+        int newX = (head[0] + direction[0] + cols) % cols;
+        int newY = (head[1] + direction[1] + rows) % rows;
+
+        segments.addFirst(new int[]{newX, newY});
+
+        if (!grow) {
+            segments.removeLast(); // Fjern halen, hvis slangen ikke skal vokse
+        }
+    }
+
+    public boolean checkSelfCollision() {
+        int[] head = segments.getFirst();
+        for (int i = 1; i < segments.size(); i++) {
+            if (segments.get(i)[0] == head[0] && segments.get(i)[1] == head[1]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setDirection(int dx, int dy) {
+        // Undgå at vende direkte om
+        if (direction[0] + dx != 0 || direction[1] + dy != 0) {
+            direction[0] = dx;
+            direction[1] = dy;
+        }
+    }
+
+    public int[] getHead() {
+        return segments.getFirst();
+    }
+
+    public LinkedList<int[]> getSegments() {
+        return segments;
+    }
+
+    public void reset(int startX, int startY) {
+        segments.clear();
+        segments.add(new int[]{startX, startY});
+        direction[0] = 1;
+        direction[1] = 0;
+    }
+}
