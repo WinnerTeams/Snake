@@ -1,0 +1,97 @@
+import processing.core.PApplet;
+
+public class Game {
+    private int gridSize;
+    private int cols, rows;
+    private int score = 0;
+    private int level = 1;
+    private int lives = 1;
+    private int foodX, foodY;
+    private Snake snake;
+
+    public Game(int gridSize, int cols, int rows, Money moneySystem) {
+        this.gridSize = gridSize;
+        this.cols = cols;
+        this.rows = rows;
+        this.snake = new Snake(cols / 2, rows / 2, cols, rows);
+        spawnFood();
+    }
+
+    public void drawBoard(PApplet applet) {
+        // Tegn grid
+        applet.stroke(100);
+        for (int i = 0; i < cols; i++) {
+            for (int j = 0; j < rows; j++) {
+                applet.noFill();
+                applet.rect(i * gridSize, j * gridSize, gridSize, gridSize);
+            }
+        }
+
+        // Tegn mad
+        applet.fill(255, 0, 0);
+        applet.rect(foodX * gridSize, foodY * gridSize, gridSize, gridSize);
+
+        // Tegn slangen
+        applet.fill(0, 255, 0);
+        for (int[] segment : snake.getSegments()) {
+            applet.rect(segment[0] * gridSize, segment[1] * gridSize, gridSize, gridSize);
+        }
+    }
+
+    public void updateGame() {
+        boolean grow = snake.getHead()[0] == foodX && snake.getHead()[1] == foodY; // Slangen skal vokse, hvis den spiser mad
+        snake.move(grow);
+
+        if (grow) {
+            score += 10;
+            spawnFood();
+        }
+
+        if (snake.checkSelfCollision()) {
+            loseLife();
+        }
+    }
+
+    public void spawnFood() {
+        boolean validPosition;
+        do {
+            validPosition = true;
+            foodX = (int) (Math.random() * cols);
+            foodY = (int) (Math.random() * rows);
+
+            for (int[] segment : snake.getSegments()) {
+                if (segment[0] == foodX && segment[1] == foodY) {
+                    validPosition = false;
+                    break;
+                }
+            }
+        } while (!validPosition);
+    }
+
+    public void loseLife() {
+        lives--;
+        if (lives > 0) {
+            snake.reset(cols / 2, rows / 2);
+        }
+    }
+
+    public boolean isGameOver() {
+        return lives <= 0;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public Snake getSnake() {
+        return snake;
+    }
+}
