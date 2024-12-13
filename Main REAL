@@ -1,0 +1,24 @@
+        text("Press 'R' to restart", width / 4, height / 2 + 50);
+    }
+
+    @Override
+    public void keyPressed() {
+        if (key == 'p' || key == 'P') {
+            gamePaused = !gamePaused;
+        } else if (key == 'r' || key == 'R') {
+            setup(); // Genstart spillet
+            loop();
+        } else if (!gamePaused) {
+            if (keyCode == UP) game.getSnake().setDirection(0, -1);
+            if (keyCode == DOWN) game.getSnake().setDirection(0, 1);
+            if (keyCode == LEFT) game.getSnake().setDirection(-1, 0);
+            if (keyCode == RIGHT) game.getSnake().setDirection(1, 0);
+        }
+    }
+
+    public static void main(String[] args) {
+        Menu menu = new Menu();
+        menu.startMenu();
+        PApplet.main("Main");
+    }
+}
