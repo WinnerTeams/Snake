@@ -1,0 +1,95 @@
+import processing.core.PApplet;
+
+public class Main extends PApplet {
+
+    private Game game;
+    private Money money;
+    private int gridSize = 20;
+    private boolean gamePaused = false;
+    private int baseFrameRate = 10; // Start hastighed
+
+    public static void main(String[] args) {
+        Menu menu = new Menu(); // Start menuen
+        menu.startMenu(); // Brugeren skal logge ind, verificere alder og betale
+        PApplet.main("Main"); // Når menuen returnerer, starter spillet
+    }
+
+    @Override
+    public void settings() {
+        size(600, 600); // Vinduesstørrelse
+    }
+
+    @Override
+    public void setup() {
+        money = new Money(); // Initialiser penge
+        int cols = width / gridSize;
+        int rows = height / gridSize;
+
+        // Initialiser spillet
+        game = new Game(gridSize, cols, rows, money);
+        frameRate(baseFrameRate); // Sæt start hastighed
+    }
+
+    @Override
+    public void draw() {
+        if (gamePaused) {
+            displayPauseScreen();
+            return;
+        }
+
+        background(50);
+        game.drawBoard(this);
+        game.updateGame();
+
+        // Øg hastigheden baseret på antal mad spist
+        int foodEaten = game.getFoodEaten();
+        frameRate(baseFrameRate + foodEaten / 2); // Forøg hastighed for hver 2 mad
+
+        if (game.isGameOver()) {
+            displayGameOverScreen();
+            money.saveBalance();
+            noLoop();
+        } else {
+            displayScoreAndLevel();
+        }
+    }
+
+    void displayScoreAndLevel() {
+        fill(255);
+        textSize(20);
+        text("Score: " + game.getScore(), 10, 20);
+        text("Money: " + money.getBalance() + " kr", 10, 40);
+        text("Speed: " + (baseFrameRate + game.getFoodEaten() / 2), 10, 60); // Vis hastighed
+        text("Lives: " + game.getLives(), 10, 80);
+    }
+
+    void displayPauseScreen() {
+        fill(255);
+        textSize(50);
+        text("Paused", width / 3, height / 2);
+    }
+
+    void displayGameOverScreen() {
+        fill(255, 0, 0);
+        textSize(50);
+        text("Game Over!", width / 4, height / 2);
+        textSize(20);
+        text("Press 'R' to restart", width / 4, height / 2 + 50);
+    }
+
+    @Override
+    public void keyPressed() {
+        if (key == 'p' || key == 'P') {
+            gamePaused = !gamePaused;
+        } else if (key == 'r' || key == 'R') {
+            setup();
+            loop();
+        } else if (!gamePaused) {
+            if (keyCode == UP) game.getSnake().setDirection(0, -1);
+            if (keyCode == DOWN) game.getSnake().setDirection(0, 1);
+            if (keyCode == LEFT) game.getSnake().setDirection(-1, 0);
+            if (keyCode == RIGHT) game.getSnake().setDirection(1, 0);
+        }
+    }
+}
+
